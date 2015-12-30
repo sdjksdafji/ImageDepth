@@ -18,29 +18,34 @@ while True:
     # Capture frame-by-frame
     ret, frame = video_capture.read()
 
-    if frame is None: 
+    if frame is None:
+        print("No frame captured") 
         print((ret,frame))
         continue;
     height, width, depth = frame.shape
-    print((height,width))
+    
     if height<=0 or width <=0: continue;
     
     left = np.zeros((height,width,depth), dtype=np.uint8)
     right = np.zeros((height,width,depth), dtype=np.uint8)
     
-    RED= 2
     BLUE = 0
     GREEN = 1
+    RED= 2
     
-    for h in range(height):
-        for w in range(width):
-            left[h, w, RED] = frame[h, w, RED]
-            right[h, w, BLUE] = frame[h, w, BLUE]
-            right[h, w, GREEN] = frame[h, w, GREEN]
-            
+    left[:, :, RED] = frame[:, :, RED]
+    right[:, :, BLUE] = frame[:, :, BLUE]
+    right[:, :, GREEN] = frame[:, :, GREEN]
+    
+    grayLeft = cv2.cvtColor(left, cv2.COLOR_BGR2GRAY) 
+    grayRight = cv2.cvtColor(right, cv2.COLOR_BGR2GRAY)
+    
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+    
     # Display the resulting frame
-    cv2.imshow('Left', cv2.cvtColor(left, cv2.COLOR_BGR2GRAY))
-    cv2.imshow('Right', cv2.cvtColor(right, cv2.COLOR_BGR2GRAY))
+    # cv2.equalizeHist(img) or clahe.apply(img)
+    cv2.imshow('Left', cv2.equalizeHist(grayLeft))
+    cv2.imshow('Right', cv2.equalizeHist(grayRight))
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
